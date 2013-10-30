@@ -51,7 +51,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_FULL
 #include "net/uip-debug.h"
 
 uint16_t dag_id[] = {0x1111, 0x1100, 0, 0, 0, 0, 0, 0x0011};
@@ -108,6 +108,21 @@ AUTOSTART_PROCESSES(&border_router_process,&webserver_nogui_process);
 
 static const char *TOP = "<html><head><title>ContikiRPL</title></head><body>\n";
 static const char *BOTTOM = "</body></html>\n";
+#ifdef COOJA
+#if BUF_USES_STACK
+static char *bufptr, *bufend;
+#define ADD(...) do {                                                   \
+    bufptr += sprintf(bufptr, bufend - bufptr, __VA_ARGS__);      \
+  } while(0)
+#else
+static char buf[256];
+static int blen;
+#define ADD(...) do {                                                   \
+    blen += sprintf(&buf[blen], sizeof(buf) - blen, __VA_ARGS__);      \
+  } while(0)
+#endif
+
+#else
 #if BUF_USES_STACK
 static char *bufptr, *bufend;
 #define ADD(...) do {                                                   \
@@ -120,6 +135,7 @@ static int blen;
     blen += snprintf(&buf[blen], sizeof(buf) - blen, __VA_ARGS__);      \
   } while(0)
 #endif
+#endif /* COOJA */
 
 /*---------------------------------------------------------------------------*/
 static void

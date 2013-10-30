@@ -41,7 +41,7 @@
 #include "net/uip.h"
 #include "net/uip-ds6.h"
 #include "dev/slip.h"
-#include "dev/uart1.h"
+//#include "dev/uart1.h"
 #include <string.h>
 
 #define UIP_IP_BUF        ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
@@ -95,6 +95,9 @@ slip_input_callback(void)
 static void
 init(void)
 {
+#ifndef BAUD2UBR
+#define BAUD2UBR(baud) baud
+#endif
   slip_arch_init(BAUD2UBR(115200));
   process_start(&slip_process, NULL);
   slip_set_input_callback(slip_input_callback);
@@ -118,35 +121,35 @@ output(void)
 }
 
 /*---------------------------------------------------------------------------*/
-#if !SLIP_BRIDGE_CONF_NO_PUTCHAR
-#undef putchar
-int
-putchar(int c)
-{
-#define SLIP_END     0300
-  static char debug_frame = 0;
-
-  if(!debug_frame) {            /* Start of debug output */
-    slip_arch_writeb(SLIP_END);
-    slip_arch_writeb('\r');     /* Type debug line == '\r' */
-    debug_frame = 1;
-  }
-
-  /* Need to also print '\n' because for example COOJA will not show
-     any output before line end */
-  slip_arch_writeb((char)c);
-
-  /*
-   * Line buffered output, a newline marks the end of debug output and
-   * implicitly flushes debug output.
-   */
-  if(c == '\n') {
-    slip_arch_writeb(SLIP_END);
-    debug_frame = 0;
-  }
-  return c;
-}
-#endif
+//#if !SLIP_BRIDGE_CONF_NO_PUTCHAR
+//#undef putchar
+//int
+//putchar(int c)
+//{
+//#define SLIP_END     0300
+//  static char debug_frame = 0;
+//
+//  if(!debug_frame) {            /* Start of debug output */
+//    slip_arch_writeb(SLIP_END);
+//    slip_arch_writeb('\r');     /* Type debug line == '\r' */
+//    debug_frame = 1;
+//  }
+//
+//  /* Need to also print '\n' because for example COOJA will not show
+//     any output before line end */
+//  slip_arch_writeb((char)c);
+//
+//  /*
+//   * Line buffered output, a newline marks the end of debug output and
+//   * implicitly flushes debug output.
+//   */
+//  if(c == '\n') {
+//    slip_arch_writeb(SLIP_END);
+//    debug_frame = 0;
+//  }
+//  return c;
+//}
+//#endif
 /*---------------------------------------------------------------------------*/
 const struct uip_fallback_interface rpl_interface = {
   init, output

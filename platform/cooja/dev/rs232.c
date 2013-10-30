@@ -34,6 +34,7 @@
 #include "lib/simEnvChange.h"
 #include <string.h>
 #include <stdio.h>
+#include "dev/slip.h" // for the slip_input_byte function pointer
 
 const struct simInterface rs232_interface;
 
@@ -67,6 +68,12 @@ rs232_print(char *message)
   printf("%s", message);
 }
 /*-----------------------------------------------------------------------------------*/
+/** Initalize the RS232 port and the SLIP driver.  */
+void
+slip_arch_init(unsigned long ubr)
+{
+  rs232_set_input(slip_input_byte);
+}
 void
 slip_arch_writeb(unsigned char c)
 {
