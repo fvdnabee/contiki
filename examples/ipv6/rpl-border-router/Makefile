@@ -5,7 +5,11 @@ CONTIKI=../../..
 
 WITH_UIP6=1
 UIP_CONF_IPV6=1
-CFLAGS+= -DUIP_CONF_IPV6_RPL
+CFLAGS += -DUIP_CONF_IPV6_RPL
+# The following three lines are only needed when compiling for Cooja on a x86_64 system
+CFLAGS += -m32
+CXXFLAGS += -m32 # for some reason Cooja uses GCC instead of CC
+LDFLAGS += -melf_i386
 
 #linker optimizations
 SMALL=1
