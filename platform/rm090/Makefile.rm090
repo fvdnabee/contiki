@@ -1,0 +1,77 @@
+
+# Defaults
+
+NODE_ID=9
+MOTE=/dev/ttyUSB0
+
+# Programming
+
+RM090_BSL=ibcn-f5x-tos-bsl
+BSL_OPTIONS=-5 -R --invert-reset --swap-reset-test -r -e -I
+
+# Contiki main file
+
+ifndef CONTIKI_TARGET_MAIN
+	CONTIKI_TARGET_MAIN = contiki-rm090-main.c
+endif
+
+# Additional source files
+
+# Platform file
+CONTIKI_TARGET_SOURCEFILES += contiki-rm090-platform.c
+
+# Serial: default to uart1 unless UART_DEBUG is defined
+ifeq ($(UART_DEBUG), 1)
+CONTIKI_TARGET_SOURCEFILES += uart0.c slip_uart0.c uart0-putchar.c
+CFLAGS+=-DUART_DEBUG
+else
+CONTIKI_TARGET_SOURCEFILES += uart1.c slip_uart1.c uart1-putchar.c
+endif
+
+# Disable printf by default to save space
+ifeq ($(ENABLE_PRINTF), 1)
+CFLAGS+=-DENABLE_PRINTF
+endif
+
+# Busses
+CONTIKI_TARGET_SOURCEFILES += spi.c
+
+# Sensors
+CONTIKI_TARGET_SOURCEFILES += sensors.c button-sensor.c radio-sensor.c
+
+# Radio
+CONTIKI_TARGET_SOURCEFILES += cc2520.c cc2520-arch.c
+
+# Misc
+#CONTIKI_TARGET_SOURCEFILES += node-id.c
+
+CONTIKI_TARGET_DIRS = . dev apps net
+
+# Set node id
+CFLAGS += -DNODE_ID=$(NODE_ID)
+
+ifeq ($(UIP_CONF_IPV6),1)
+CFLAGS += -DWITH_UIP6=1
+endif
+
+SMALL=1
+
+MCU=msp430f5437
+include $(CONTIKI)/cpu/msp430/Makefile.msp430
+
+ifndef MSPGCC_VERSION
+	MSPGCC_VERSION := ${shell $(CC) -dumpversion}
+endif
+
+ifneq (,$(findstring 4.7.,$(MSPGCC_VERSION)))
+	CFLAGS += -mmemory-model=medium
+	LDFLAGS += -mmemory-model=medium
+endif
+
+#CFLAGS += -g
+
+%.hex: %.ihex
+	mv $< $@
+
+%.upload: %.hex
+	$(RM090_BSL) -c $(MOTE) $(BSL_OPTIONS) -p $<
