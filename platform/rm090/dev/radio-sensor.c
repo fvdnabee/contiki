@@ -29,30 +29,37 @@
  * This file is part of the Contiki operating system.
  *
  */
-#ifndef HWCONF_H_
-#define HWCONF_H_
-#include "contiki.h"
-#include "sys/cc.h"
 
-#define HWCONF_PIN(name, port, bit)                                           \
-static CC_INLINE void name##_SELECT() {P##port##SEL &= ~(1 << bit);}          \
-static CC_INLINE void name##_SELECT_IO() {P##port##SEL &= ~(1 << bit);}       \
-static CC_INLINE void name##_SELECT_PM() {P##port##SEL |= 1 << bit;}          \
-static CC_INLINE void name##_SET() {P##port##OUT |= 1 << bit;}                \
-static CC_INLINE void name##_CLEAR() {P##port##OUT &= ~(1 << bit);}           \
-static CC_INLINE int  name##_READ() {return (P##port##IN & (1 << bit));}      \
-static CC_INLINE void name##_MAKE_OUTPUT() {P##port##DIR |= 1 << bit;}        \
-static CC_INLINE void name##_MAKE_INPUT() {P##port##DIR &= ~(1 << bit);}      \
-static CC_INLINE void name##_REN_ENABLE() {P##port##REN |= (1 << bit);}       \
-static CC_INLINE void name##_REN_DISABLE() {P##port##REN &= ~(1 << bit);}
+#include "lib/sensors.h"
+#include "dev/cc2520.h"
+#include "dev/radio-sensor.h"
 
-#define HWCONF_IRQ(name, port, bit)                                           \
-static CC_INLINE void name##_ENABLE_IRQ() {P##port##IE |= 1 << bit;}          \
-static CC_INLINE void name##_DISABLE_IRQ() {P##port##IE &= ~(1 << bit);}      \
-static CC_INLINE int  name##_IRQ_ENABLED() {return P##port##IE & (1 << bit);} \
-static CC_INLINE void name##_IRQ_EDGE_SELECTD() {P##port##IES |= 1 << bit;}   \
-static CC_INLINE void name##_IRQ_EDGE_SELECTU() {P##port##IES &= ~(1 << bit);}\
-static CC_INLINE int  name##_CHECK_IRQ() {return P##port##IFG & (1 << bit);} \
-static CC_INLINE int  name##_IRQ_PORT() {return port;}
+const struct sensors_sensor radio_sensor;
 
-#endif /* HWCONF_H_ */
+/*---------------------------------------------------------------------------*/
+static int
+value(int type)
+{
+  switch(type) {
+  case RADIO_SENSOR_LAST_PACKET:
+    return cc2520_last_correlation;
+  case RADIO_SENSOR_LAST_VALUE:
+  default:
+    return cc2520_last_rssi;
+  }
+}
+/*---------------------------------------------------------------------------*/
+static int
+configure(int type, int c)
+{
+  return 0;
+}
+/*---------------------------------------------------------------------------*/
+static int
+status(int type)
+{
+  return 0;
+}
+/*---------------------------------------------------------------------------*/
+SENSORS_SENSOR(radio_sensor, RADIO_SENSOR,
+	       value, configure, status);
