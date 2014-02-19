@@ -6,7 +6,7 @@ MOTE=/dev/ttyUSB0
 
 # Programming
 
-RM090_BSL=ibcn-f5x-tos-bsl
+RM090_BSL=$(CONTIKI)/tools/rm090/ibcn-f5x-tos-bsl
 BSL_OPTIONS=-5 -R --invert-reset --swap-reset-test -r -e -I
 
 # Contiki main file
