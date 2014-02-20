@@ -28,12 +28,12 @@
  *
  */
 
-package se.sics.cooja.mspmote;
+package org.contikios.cooja.mspmote;
 import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import se.sics.cooja.Simulation;
+import org.contikios.cooja.Simulation;
 import se.sics.mspsim.platform.rm090.RM090Node;
 
 /**
