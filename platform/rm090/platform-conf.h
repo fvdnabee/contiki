@@ -39,6 +39,8 @@
  * Definitions below are dictated by the hardware and not really
  * changeable!
  */
+/* Platform RM090 */
+#define RM090 1
 
 #define PLATFORM_HAS_LEDS   1
 #define PLATFORM_HAS_BUTTON 1
