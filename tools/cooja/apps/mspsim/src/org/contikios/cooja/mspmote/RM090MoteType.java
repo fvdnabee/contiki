@@ -27,24 +27,25 @@
  * SUCH DAMAGE.
  */
 
-package se.sics.cooja.mspmote;
-import se.sics.cooja.AbstractionLevelDescription;
-import se.sics.cooja.ClassDescription;
-import se.sics.cooja.MoteInterface;
-import se.sics.cooja.Simulation;
-import se.sics.cooja.interfaces.IPAddress;
-import se.sics.cooja.interfaces.Mote2MoteRelations;
-import se.sics.cooja.interfaces.MoteAttributes;
-import se.sics.cooja.interfaces.Position;
-import se.sics.cooja.interfaces.RimeAddress;
-import se.sics.cooja.mspmote.interfaces.Msp802154Radio;
-import se.sics.cooja.mspmote.interfaces.MspButton;
-import se.sics.cooja.mspmote.interfaces.MspClock;
-import se.sics.cooja.mspmote.interfaces.MspDebugOutput;
-import se.sics.cooja.mspmote.interfaces.MspDefaultSerial;
-import se.sics.cooja.mspmote.interfaces.MspLED;
-import se.sics.cooja.mspmote.interfaces.MspMoteID;
-import se.sics.cooja.mspmote.interfaces.UsciA1Serial;
+package org.contikios.cooja.mspmote;
+import org.contikios.cooja.AbstractionLevelDescription;
+import org.contikios.cooja.ClassDescription;
+import org.contikios.cooja.MoteInterface;
+import org.contikios.cooja.Simulation;
+import org.contikios.cooja.interfaces.IPAddress;
+import org.contikios.cooja.interfaces.Mote2MoteRelations;
+import org.contikios.cooja.interfaces.MoteAttributes;
+import org.contikios.cooja.interfaces.Position;
+import org.contikios.cooja.interfaces.RimeAddress;
+import org.contikios.cooja.mspmote.interfaces.Msp802154Radio;
+import org.contikios.cooja.mspmote.interfaces.MspButton;
+import org.contikios.cooja.mspmote.interfaces.MspClock;
+import org.contikios.cooja.mspmote.interfaces.MspDebugOutput;
+import org.contikios.cooja.mspmote.interfaces.MspDefaultSerial;
+import org.contikios.cooja.mspmote.interfaces.MspLED;
+import org.contikios.cooja.mspmote.interfaces.MspMoteID;
+import org.contikios.cooja.mspmote.interfaces.UsciA1Serial;
+
 
 @ClassDescription("RM090 mote")
 @AbstractionLevelDescription("Emulated level")
@@ -87,7 +88,8 @@ public class RM090MoteType extends AbstractMspMoteType {
 //                SkyFlash.class,
 //                SkyCoffeeFilesystem.class,
                 Msp802154Radio.class,
-                UsciA1Serial.class,
+                UsciA1Serial.class, // In contiki's port the default serial port is USCI A1. Although MspDefaultSerial.class also seems te work.
+//                MspDefaultSerial.class,
                 MspLED.class,
                 MspDebugOutput.class /* EXPERIMENTAL: Enable me for COOJA_DEBUG(..) */
         );

@@ -75,3 +75,7 @@ endif
 
 %.upload: %.hex
 	$(RM090_BSL) -c $(MOTE) $(BSL_OPTIONS) -p $<
+
+MODULES += core/net core/net/ip core/net/ipv6 core/net/ipv4 core/net/mac \
+           core/net/rime core/net/mac/contikimac core/net/rpl \
+           dev/cc2520
