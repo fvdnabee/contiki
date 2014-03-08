@@ -455,6 +455,7 @@ stty_telos(int fd)
   struct termios tty;
   speed_t speed = b_rate;
   int i;
+  int stat_;
 
   if(tcflush(fd, TCIOFLUSH) == -1) err(1, "tcflush");
 
@@ -471,7 +472,6 @@ stty_telos(int fd)
     tty.c_cflag &= ~CRTSCTS;
   tty.c_cflag &= ~HUPCL;
   tty.c_cflag &= ~CLOCAL;
-
   cfsetispeed(&tty, speed);
   cfsetospeed(&tty, speed);
 
@@ -486,6 +486,14 @@ stty_telos(int fd)
 
   i = TIOCM_DTR;
   if(ioctl(fd, TIOCMBIS, &i) == -1) err(1, "ioctl");
+
+  // For RM090: lower RTS and DTR pin:
+  if(ioctl(fd, TIOCMGET, &stat_) == -1) err(1, "tiocmget failed");
+  stat_ &= ~TIOCM_RTS;
+  if(ioctl(fd, TIOCMSET, &stat_) == -1) err(1, "ioctl");
+  stat_ &= ~ TIOCM_DTR;
+  ioctl(fd,TIOCMSET,&stat_);
+  sleep(1);
 #endif
 
   usleep(10*1000);		/* Wait for hardware 10ms. */
