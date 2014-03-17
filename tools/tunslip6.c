@@ -493,7 +493,7 @@ stty_telos(int fd)
   if(ioctl(fd, TIOCMSET, &stat_) == -1) err(1, "ioctl");
   stat_ &= ~ TIOCM_DTR;
   ioctl(fd,TIOCMSET,&stat_);
-  sleep(1);
+  sleep(1); // wait a second for rts/dtr settings to take effect
 #endif
 
   usleep(10*1000);		/* Wait for hardware 10ms. */
