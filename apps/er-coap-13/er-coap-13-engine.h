@@ -61,6 +61,9 @@ typedef coap_packet_t rest_response_t;
 extern const struct rest_implementation coap_rest_implementation;
 
 void coap_receiver_init(void);
+#ifdef TINYDTLS_ERBIUM
+void coap_receive_from_tinydtls(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t datalen);
+#endif
 
 /*-----------------------------------------------------------------------------------*/
 /*- Client part ---------------------------------------------------------------------*/

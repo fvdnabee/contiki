@@ -76,7 +76,10 @@ static service_callback_t service_cbk = NULL;
 /*----------------------------------------------------------------------------*/
 static
 int
-coap_receive(void)
+//Change coap_receive signature so that we can pass on the data buffer and the
+//meta data from tinydtls instead of getting them from some contiki's UIP structs
+coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t datalen)
+//coap_receive(void)
 {
   coap_error_code = NO_ERROR;
 
@@ -89,13 +92,20 @@ coap_receive(void)
 
   if (uip_newdata()) {
 
+    //PRINTF("receiving UDP datagram from: ");
+    //PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
+    //PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
+    //PRINTBITS(uip_appdata, uip_datalen());
+    //PRINTF("\n");
+
     PRINTF("receiving UDP datagram from: ");
-    PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
-    PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
-    PRINTBITS(uip_appdata, uip_datalen());
+    PRINT6ADDR(srcipaddr);
+    PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(srcport), datalen );
+    PRINTBITS(data, datalen);
     PRINTF("\n");
 
-    coap_error_code = coap_parse_message(message, uip_appdata, uip_datalen());
+    //coap_error_code = coap_parse_message(message, uip_appdata, uip_datalen());
+    coap_error_code = coap_parse_message(message, data, datalen);
 
     if (coap_error_code==NO_ERROR)
     {
@@ -110,7 +120,8 @@ coap_receive(void)
       if (message->code >= COAP_GET && message->code <= COAP_DELETE)
       {
         /* Use transaction buffer for response to confirmable request. */
-        if ( (transaction = coap_new_transaction(message->mid, &UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport)) )
+        //if ( (transaction = coap_new_transaction(message->mid, &UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport)) )
+        if ( (transaction = coap_new_transaction(message->mid, srcipaddr, srcport)) )
         {
           uint32_t block_num = 0;
           uint16_t block_size = REST_MAX_CHUNK_SIZE;
@@ -234,7 +245,8 @@ coap_receive(void)
         {
           PRINTF("Received RST\n");
           /* Cancel possible subscriptions. */
-          coap_remove_observer_by_mid(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, message->mid);
+          //coap_remove_observer_by_mid(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, message->mid);
+          coap_remove_observer_by_mid(srcipaddr, srcport, message->mid);
         }
 
         if ( (transaction = coap_get_transaction_by_mid(message->mid)) )
@@ -284,12 +296,22 @@ coap_receive(void)
       /* Reuse input buffer for error message. */
       coap_init_message(message, reply_type, coap_error_code, message->mid);
       coap_set_payload(message, coap_error_message, strlen(coap_error_message));
-      coap_send_message(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, coap_serialize_message(message, uip_appdata));
+      //coap_send_message(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, coap_serialize_message(message, uip_appdata));
+      coap_send_message(srcipaddr, srcport, data, coap_serialize_message(message, data));
     }
   } /* if (new data) */
 
   return coap_error_code;
 }
+
+#ifdef TINYDTLS_ERBIUM
+void
+coap_receive_from_tinydtls(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t datalen)
+{
+  coap_receive(srcipaddr, srcport, data, datalen);
+}
+#endif
+
 /*----------------------------------------------------------------------------*/
 void
 coap_receiver_init()
@@ -505,8 +527,9 @@ PROCESS_THREAD(coap_receiver, ev, data)
   while(1) {
     PROCESS_YIELD();
 
-    if(ev == tcpip_event) {
-      coap_receive();
+    if(ev == tcpip_event) { // tinydtls-erbium, as we didn't register with UIP the tcpip_event will never come, instead tinydtls will call coap_receive when it has received DTLS application data
+      coap_receive(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, uip_datalen());
+      //coap_receive();
     } else if (ev == PROCESS_EVENT_TIMER) {
       /* retransmissions are handled here */
       coap_check_transactions();
