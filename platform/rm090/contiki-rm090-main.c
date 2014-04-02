@@ -300,6 +300,9 @@ main(int argc, char **argv){
 
 	autostart_start(autostart_processes);
 
+  energest_init();
+  ENERGEST_ON(ENERGEST_TYPE_CPU);
+
 	while(1) {
 
 		while(process_run() > 0);
@@ -308,8 +311,25 @@ main(int argc, char **argv){
 
 		if(process_nevents() != 0 || UART_ACTIVE())
 			__eint();
-		else
+		else {
+      static unsigned long irq_energest = 0;
+      ENERGEST_OFF(ENERGEST_TYPE_CPU);
+      ENERGEST_ON(ENERGEST_TYPE_LPM);
+      /* We only want to measure the processing done in IRQs when we
+	 are asleep, so we discard the processing time done when we
+	 were awake. */
+      energest_type_set(ENERGEST_TYPE_IRQ, irq_energest);
+
 			_BIS_SR(GIE | SCG0 | SCG1 | CPUOFF);
+      /* We get the current processing time for interrupts that was
+	 done during the LPM and store it for next time around.  */
+      dint();
+      irq_energest = energest_type_time(ENERGEST_TYPE_IRQ);
+      eint();
+      ENERGEST_OFF(ENERGEST_TYPE_LPM);
+      ENERGEST_ON(ENERGEST_TYPE_CPU);
+
+    }
 
 	}
 }

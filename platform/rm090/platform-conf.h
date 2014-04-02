@@ -123,6 +123,7 @@ typedef unsigned long off_t;
 #define CC2520_RESET_PIN           4
 
 #define CC2520_IRQ_VECTOR PORT1_VECTOR
+#define CC2520_IRQ2_VECTOR PORT2_VECTOR
 
 /* Pin status.CC2520 */
 #define CC2520_FIFOP_IS_1 (!!(CC2520_FIFOP_PORT(IN) & BV(CC2520_FIFOP_PIN)))
