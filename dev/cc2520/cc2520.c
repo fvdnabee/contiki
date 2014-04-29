@@ -325,6 +325,10 @@ cc2520_init(void)
   /* Set FIFOP threshold to maximum .*/
   setreg(CC2520_FIFOPCTRL,   FIFOP_THR(0x7F));
 
+  /* Set GPIO5 to output tx_active */
+  setreg(CC2520_GPIOCTRL5, 0x44);
+  setreg(CC2520_GPIOPOLARITY,0x3F); // probably unnecessary...
+
   cc2520_set_pan_addr(0xffff, 0x0000, NULL);
   cc2520_set_channel(26);
 
