@@ -101,7 +101,7 @@
 
 #define PROFILE_CONF_ON 0
 #ifndef ENERGEST_CONF_ON // allow application developer to overwrite
-#define ENERGEST_CONF_ON 0
+//#define ENERGEST_CONF_ON 0
 #endif
 
 #define ELFLOADER_CONF_TEXT_IN_ROM 0
