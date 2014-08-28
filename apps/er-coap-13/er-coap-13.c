@@ -45,8 +45,8 @@
 #include "er-coap-13-transactions.h"
 
 #ifdef TINYDTLS_ERBIUM // don't include the entire dtls.h header file, instead use an extern function declaration
-extern int
-write_coap_to_latest_peer(uint8_t *data, size_t len);
+extern int write_coap_to_latest_peer(uint8_t *data, size_t len);
+extern int coap_last_request_from_tinydtls;
 #endif
 
 #define DEBUG 0
@@ -279,12 +279,10 @@ coap_get_variable(const char *buffer, size_t length, const char *name, const cha
 void
 coap_init_connection(uint16_t port)
 {
-#ifndef TINYDTLS_ERBIUM // tinydtls-erbium: don't register as a UDP server with UIP, but do execute the initialize the messageID further down
   /* new connection with remote host */
   udp_conn = udp_new(NULL, 0, NULL);
   udp_bind(udp_conn, port);
   PRINTF("Listening on port %u\n", uip_ntohs(udp_conn->lport));
-#endif
 
   /* Initialize transaction ID. */
   current_mid = random_rand();
@@ -426,20 +424,23 @@ coap_send_message(uip_ipaddr_t *addr, uint16_t port, uint8_t *data, uint16_t len
 void
 coap_send_message(uip_ipaddr_t *addr, uint16_t port, uint8_t *data, uint16_t length)
 {
-  /* Configure connection to reply to client */
-  /* TinyDTLS will configure this for us (hopefully) */
-  //uip_ipaddr_copy(&udp_conn->ripaddr, addr);
-  //udp_conn->rport = port;
+  if (!coap_last_request_from_tinydtls) { // no DTLS, send via 'normal' uip stack
+    /* Configure connection to reply to client */
+    uip_ipaddr_copy(&udp_conn->ripaddr, addr);
+    udp_conn->rport = port;
 
-  //uip_udp_packet_send(udp_conn, data, length);
-  //PRINTF("-sent UDP datagram (%u)-\n", length);
+    uip_udp_packet_send(udp_conn, data, length);
+    PRINTF("-sent UDP datagram (%u)-\n", length);
 
-  write_coap_to_latest_peer(data, length);
-  PRINTF("-sent UDP datagram (%u)-\n", length);
+    /* Restore server connection to allow data from any node */
+    memset(&udp_conn->ripaddr, 0, sizeof(udp_conn->ripaddr));
+    udp_conn->rport = 0;
+  } else { // DTLS: send via tinydtls
+    write_coap_to_latest_peer(data, length);
+    PRINTF("-sent UDP datagram (%u)-\n", length);
+  }
 
-  /* Restore server connection to allow data from any node */
-  //memset(&udp_conn->ripaddr, 0, sizeof(udp_conn->ripaddr));
-  //udp_conn->rport = 0;
+  coap_last_request_from_tinydtls = 0;
 }
 #endif
 /*-----------------------------------------------------------------------------------*/

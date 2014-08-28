@@ -65,6 +65,10 @@
 #define PRINTBITS(buf,len)
 #endif
 
+#ifdef TINYDTLS_ERBIUM
+int coap_last_request_from_tinydtls = 0;
+#endif
+
 PROCESS(coap_receiver, "CoAP Receiver");
 
 /*----------------------------------------------------------------------------*/
@@ -83,7 +87,7 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
 {
   coap_error_code = NO_ERROR;
 
-  PRINTF("handle_incoming_data(): received uip_datalen=%u \n",(uint16_t)uip_datalen());
+  PRINTF("coap_receive() handle_incoming_data(): received uip_datalen=%u \n",(uint16_t)uip_datalen());
 
   /* Static declaration reduces stack peaks and program code size. */
   static coap_packet_t message[1]; /* This way the packet can be treated as pointer as usual. */
@@ -92,20 +96,31 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
 
   if (uip_newdata()) {
 
-    //PRINTF("receiving UDP datagram from: ");
-    //PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
-    //PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
-    //PRINTBITS(uip_appdata, uip_datalen());
-    //PRINTF("\n");
+#ifdef TINYDTLS_ERBIUM
+    if (!coap_last_request_from_tinydtls) { // default erbium behaviour: received via erbium process
+      PRINTF("receiving UDP datagram from: ");
+      PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
+      PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
+      PRINTBITS(uip_appdata, uip_datalen());
+      PRINTF("\n");
 
-    PRINTF("receiving UDP datagram from: ");
-    PRINT6ADDR(srcipaddr);
-    PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(srcport), datalen );
-    PRINTBITS(data, datalen);
-    PRINTF("\n");
+      coap_error_code = coap_parse_message(message, uip_appdata, uip_datalen());
+    } else { // added: received via tinydtls process
+      PRINTF("receiving UDP datagram from: ");
+      PRINT6ADDR(srcipaddr);
+      PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(srcport), datalen );
+      PRINTBITS(data, datalen);
+      PRINTF("\n");
 
-    //coap_error_code = coap_parse_message(message, uip_appdata, uip_datalen());
-    coap_error_code = coap_parse_message(message, data, datalen);
+      coap_error_code = coap_parse_message(message, data, datalen);
+    }
+#else
+      PRINTF("receiving UDP datagram from: ");
+      PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
+      PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
+      PRINTBITS(uip_appdata, uip_datalen());
+      PRINTF("\n");
+#endif
 
     if (coap_error_code==NO_ERROR)
     {
@@ -296,8 +311,15 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
       /* Reuse input buffer for error message. */
       coap_init_message(message, reply_type, coap_error_code, message->mid);
       coap_set_payload(message, coap_error_message, strlen(coap_error_message));
-      //coap_send_message(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, coap_serialize_message(message, uip_appdata));
-      coap_send_message(srcipaddr, srcport, data, coap_serialize_message(message, data));
+#ifdef TINYDTLS_ERBIUM
+      if (!coap_last_request_from_tinydtls)
+        coap_send_message(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, coap_serialize_message(message, uip_appdata));
+      else
+        coap_send_message(srcipaddr, srcport, data, coap_serialize_message(message, data));
+#else
+      coap_send_message(&UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport, uip_appdata, coap_serialize_message(message, uip_appdata));
+#endif
+
     }
   } /* if (new data) */
 
@@ -308,6 +330,7 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
 void
 coap_receive_from_tinydtls(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t datalen)
 {
+  coap_last_request_from_tinydtls = 1;
   coap_receive(srcipaddr, srcport, data, datalen);
 }
 #endif
