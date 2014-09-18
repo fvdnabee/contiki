@@ -51,4 +51,14 @@
 #define WEBSERVER_CONF_CFS_CONNS 2
 #endif
 
+#undef NETSTACK_CONF_MAC
+#define NETSTACK_CONF_MAC     csma_driver
+/* #define NETSTACK_CONF_MAC     nullmac_driver */
+
+/* Disabling RDC for demo purposes. Core updates often require more memory. */
+/* For projects, optimize memory and enable RDC again. */
+#undef NETSTACK_CONF_RDC
+//#define NETSTACK_CONF_RDC     nullrdc_driver
+#define NETSTACK_CONF_RDC     contikimac_driver
+
 #endif /* PROJECT_ROUTER_CONF_H_ */
