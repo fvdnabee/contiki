@@ -216,3 +216,5 @@ symbols.c symbols.h:
 	cp ${CONTIKI}/tools/empty-symbols.c symbols.c
 	cp ${CONTIKI}/tools/empty-symbols.h symbols.h
 endif
+
+CFLAGS += -I/usr/local/msp430/include
