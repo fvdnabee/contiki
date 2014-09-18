@@ -95,18 +95,21 @@ public class CC2520Radio extends Radio implements CustomDataRadio {
 
         if (len == expLen) {
           /*logger.debug("----- CC2520 CUSTOM DATA TRANSMITTED -----");*/
-        	len -= 4; /* preamble */
-        	len -= 1; /* synch */
-        	len -= radio.getFooterLength(); /* footer */
-        	final byte[] packetdata = new byte[len];
-        	System.arraycopy(buffer, 4+1, packetdata, 0, len);
-        	lastOutgoingPacket =  new RadioPacket() {
-        		public byte[] getPacketData() {
-        			return packetdata;
-        		}
-        	};
 
-          /*logger.debug("----- CC2520 PACKET TRANSMITTED -----");*/
+//        	len -= 4; /* preamble */
+//        	len -= 1; /* synch */
+//        	len -= radio.getFooterLength(); /* footer */
+//        	final byte[] packetdata = new byte[len];
+//        	System.arraycopy(buffer, 4+1, packetdata, 0, len);
+//        	lastOutgoingPacket =  new RadioPacket() {
+//        		public byte[] getPacketData() {
+//        			return packetdata;
+//        		}
+//        	};
+
+          lastOutgoingPacket = CC2420RadioPacketConverter.fromCC2420ToCooja(buffer);
+          lastEvent = RadioEvent.PACKET_TRANSMITTED;
+//          /*logger.debug("----- CC2520 PACKET TRANSMITTED -----");*/
           setChanged();
           notifyObservers();
 
@@ -275,16 +278,17 @@ public class CC2520Radio extends Radio implements CustomDataRadio {
   }
 
   public double getCurrentOutputPower() {
-    return radio.getOutputPower();
+	    return radio.getOutputPower();
   }
 
   public int getCurrentOutputPowerIndicator() {
-	  return 100;
-//    return radio.getOutputPowerIndicator();
+	  //return 100;
+    return radio.getOutputPowerIndicator();
   }
 
   public int getOutputPowerIndicatorMax() {
-	  return 100;
+    return radio.getOutputPowerIndicatorMax();
+	  //return 100;
 //    return 31;
   }
 
