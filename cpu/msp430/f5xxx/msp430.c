@@ -49,10 +49,31 @@ msp430_init_dco(void)
 #endif
 
   UCSCTL0 = 0x0000;
+  // bits 6-4: set DCO frequency range select. These bits select the DCO frequency range of
+  // operation defined in the device-specific datasheet. By default DCORSEL=2
+  // for msp430f5437 DCORSEL_4=0x0040, so set DCORSEL=4
   UCSCTL1 = DCORSEL_4;
 
+  // MSP430_CPU_SPEED / 32768 equals 0x4B for 2457600UL
+  // set FFLN=0x4b, i.e. set FFLN=75
+  // FFLD retains default value of 1
   UCSCTL2 = MSP430_CPU_SPEED / 32768;
+  // 1) set SMCLK source to DCOCLK (default (0x4*) sets SMCLK source to DCOCLKDIV)
+  // 2) set MCLK source to DCOCLK (default is 0x*4 which sets MCLK source to DCOCLKDIV)
   UCSCTL4 = 0x33; /* instead of 0x44 that is DCO/2 */
+
+  /*
+   * fDCOCLK = D × (N + 1) × (fFLLREFCLK ÷ n), equal to 2 490 368 Hz
+   * D=1
+   * N=75
+   * fFLLREFCLK = 32768Hz
+   * n = FLLREFDIV (set by UCSCTL3), default FLLREFDIV=1
+   */
+  /*
+   * fDCO(4,0)  DCO frequency (4, 0) (1)  DCORSELx = 4, DCOx = 0,  MODx = 0 1.3   3.2 MHz
+   * fDCO(4,31) DCO frequency (4, 31) (1) DCORSELx = 4, DCOx = 31, MODx = 0 12.3 28.2 MHz
+   * DCOx is the tap, UCSCTL0 has set DCO tap selection to 0.
+   **/
 
 #ifdef __IAR_SYSTEMS_ICC__
   __bic_SR_register(SCG0);

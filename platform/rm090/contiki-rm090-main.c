@@ -191,6 +191,10 @@ main(int argc, char **argv){
 	}
 	cc2520_set_channel(RF_CHANNEL);
 
+  // fvdabeele: MSPSIM/cooja only...
+  printf("Set TX power to 0xf7\n");
+  cc2520_set_txpower(0xf7);
+
 	printf(CONTIKI_VERSION_STRING " started. ");
 	if(node_id > 0) {
 		printf("Node id is set to %u.\n", node_id);
