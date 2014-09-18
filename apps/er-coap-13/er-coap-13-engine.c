@@ -120,6 +120,8 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
       PRINTF(":%u\n  Length: %u\n  Data: ", uip_ntohs(UIP_UDP_BUF->srcport), uip_datalen() );
       PRINTBITS(uip_appdata, uip_datalen());
       PRINTF("\n");
+
+      coap_error_code = coap_parse_message(message, uip_appdata, uip_datalen());
 #endif
 
     if (coap_error_code==NO_ERROR)
@@ -135,8 +137,11 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
       if (message->code >= COAP_GET && message->code <= COAP_DELETE)
       {
         /* Use transaction buffer for response to confirmable request. */
-        //if ( (transaction = coap_new_transaction(message->mid, &UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport)) )
+#ifdef TINYDTLS_ERBIUM
         if ( (transaction = coap_new_transaction(message->mid, srcipaddr, srcport)) )
+#else
+        if ( (transaction = coap_new_transaction(message->mid, &UIP_IP_BUF->srcipaddr, UIP_UDP_BUF->srcport)) )
+#endif
         {
           uint32_t block_num = 0;
           uint16_t block_size = REST_MAX_CHUNK_SIZE;
@@ -164,6 +169,7 @@ coap_receive(uip_ip6addr_t* srcipaddr, uint16_t srcport, uint8_t* data, uint16_t
           /* get offset for blockwise transfers */
           if (coap_get_header_block2(message, &block_num, NULL, &block_size, &block_offset))
           {
+              block_size = 32;
               PRINTF("Blockwise: block request %lu (%u/%u) @ %lu bytes\n", block_num, block_size, REST_MAX_CHUNK_SIZE, block_offset);
               block_size = MIN(block_size, REST_MAX_CHUNK_SIZE);
               new_offset = block_offset;
