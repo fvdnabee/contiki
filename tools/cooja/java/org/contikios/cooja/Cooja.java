@@ -63,6 +63,8 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.*;
+import java.io.*;
 import java.security.AccessControlException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -3214,8 +3216,48 @@ public class Cooja extends Observable {
       if (sim == null) {
         System.exit(1);
       }
-      
 
+      sim.setSpeedLimit(1.0);
+      sim.startSimulation();
+      
+	int portNumber = 60000;
+
+        try ( 
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            Socket clientSocket = serverSocket.accept();
+            PrintWriter out =
+                new PrintWriter(clientSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(clientSocket.getInputStream()));
+        ) {
+        
+            String inputLine, outputLine;
+            
+
+            while ((inputLine = in.readLine()) != null) {
+		if (inputLine.equals("?T")) {
+			out.println(sim.getSimulationTime());
+	    	} else if (inputLine.equals("?S")) {
+			out.println(sim.getSpeedLimit());
+		} else { // set speed limit, null for no speed limit
+			Double speedLimit = 1.0;
+			if (inputLine.equals("null"))
+				speedLimit = null;
+			else
+				speedLimit = Double.parseDouble(inputLine);
+			sim.setSpeedLimit(speedLimit);
+
+		}
+//                outputLine = kkp.processInput(inputLine);
+//                out.println(outputLine);
+//                if (outputLine.equals("Bye."))
+//                    break;
+            }
+        } catch (IOException e) {
+            System.out.println("Exception caught when trying to listen on port "
+                + portNumber + " or listening for a connection");
+            System.out.println(e.getMessage());
+        }
     } else if (args.length > 0 && args[0].startsWith("-nogui=")) {
 
       /* Load simulation */
@@ -3260,9 +3302,7 @@ public class Cooja extends Observable {
         }
       }
 
-      sim.setSpeedLimit(null);
-      sim.startSimulation();
-      
+
     } else if (args.length > 0 && args[0].startsWith("-applet")) {
 
       String tmpWebPath=null, tmpBuildPath=null, tmpEsbFirmware=null, tmpSkyFirmware=null;

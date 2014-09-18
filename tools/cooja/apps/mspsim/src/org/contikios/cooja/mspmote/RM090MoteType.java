@@ -38,6 +38,7 @@ import org.contikios.cooja.interfaces.MoteAttributes;
 import org.contikios.cooja.interfaces.Position;
 import org.contikios.cooja.interfaces.RimeAddress;
 import org.contikios.cooja.mspmote.interfaces.Msp802154Radio;
+import org.contikios.cooja.mspmote.interfaces.CC2520Radio;
 import org.contikios.cooja.mspmote.interfaces.MspButton;
 import org.contikios.cooja.mspmote.interfaces.MspClock;
 import org.contikios.cooja.mspmote.interfaces.MspDebugOutput;
@@ -87,7 +88,8 @@ public class RM090MoteType extends AbstractMspMoteType {
                 MspButton.class,
 //                SkyFlash.class,
 //                SkyCoffeeFilesystem.class,
-                Msp802154Radio.class,
+//                Msp802154Radio.class,
+                CC2520Radio.class,
                 UsciA1Serial.class, // In contiki's port the default serial port is USCI A1. Although MspDefaultSerial.class also seems te work.
 //                MspDefaultSerial.class,
                 MspLED.class,
