@@ -1,7 +1,9 @@
 
 # Defaults
 
+ifndef NODE_ID
 NODE_ID=9
+endif
 MOTE=/dev/ttyUSB0
 
 # Programming
@@ -50,10 +52,6 @@ CONTIKI_TARGET_DIRS = . dev apps net
 # Set node id
 CFLAGS += -DNODE_ID=$(NODE_ID)
 
-ifeq ($(UIP_CONF_IPV6),1)
-CFLAGS += -DWITH_UIP6=1
-endif
-
 SMALL=1
 
 MCU=msp430f5437
@@ -66,7 +64,7 @@ endif
 ifneq (,$(findstring 4.7.,$(MSPGCC_VERSION)))
 	CFLAGS += -mmemory-model=medium
 	LDFLAGS += -mmemory-model=medium
-	CFLAGS += -ffunction-sections -fdata-sections #-mcode-region=far
+	CFLAGS += -ffunction-sections -fdata-sections -mcode-region=far
 	LDFLAGS += -Wl,-gc-sections
 endif
 
@@ -78,6 +76,8 @@ endif
 %.upload: %.hex
 	$(RM090_BSL) -c $(MOTE) $(BSL_OPTIONS) -p $<
 
-MODULES += core/net core/net/ip core/net/ipv6 core/net/ipv4 core/net/mac \
-           core/net/rime core/net/mac/contikimac core/net/rpl \
+MODULES += core/net \
+	   core/net/ipv6/multicast \
+           core/net/mac core/net/mac/contikimac \
+           core/net/llsec \
            dev/cc2520
