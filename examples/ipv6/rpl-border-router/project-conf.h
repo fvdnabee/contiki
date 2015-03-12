@@ -35,8 +35,8 @@
 #define UIP_FALLBACK_INTERFACE rpl_interface
 #endif
 
-#undef IEEE802154_CONF_PANID          
-#define IEEE802154_CONF_PANID          0x3456
+#undef IEEE802154_CONF_PANID
+#define IEEE802154_CONF_PANID          0x2345
 
 #ifndef QUEUEBUF_CONF_NUM
 #define QUEUEBUF_CONF_NUM          4
@@ -63,5 +63,17 @@
 #undef NETSTACK_CONF_RDC
 //#define NETSTACK_CONF_RDC     nullrdc_driver
 #define NETSTACK_CONF_RDC     contikimac_driver
+
+#undef NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE 
+#define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE 128
+
+/* Change this to switch engines. Engine codes in uip-mcast6-engines.h */
+/* When the origin of the multicast is from outside the 6LowPAN use SMRF
+ * see README for more details
+ */ 
+#undef UIP_MCAST6_CONF_ENGINE
+//#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_NONE
+//#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_SMRF 	// needs on rm090: 1516B RAM &  322B ROM 
+#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_ROLL_TM 	// needs on rm090: 4176B RAM & 1802B ROM
 
 #endif /* PROJECT_ROUTER_CONF_H_ */

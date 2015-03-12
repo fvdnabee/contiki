@@ -6,6 +6,10 @@ CONTIKI=../../..
 #linker optimizations
 SMALL=1
 
+# RM090
+ENABLE_PRINTF=1
+NODE_ID=1
+
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 PROJECT_SOURCEFILES += slip-bridge.c
 

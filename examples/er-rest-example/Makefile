@@ -5,6 +5,10 @@ CONTIKI=../..
 
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 
+# RM090
+ENABLE_PRINTF=1
+NODE_ID=2
+
 # automatically build RESTful resources
 REST_RESOURCES_DIR = ./resources
 ifndef TARGET

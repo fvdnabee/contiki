@@ -49,13 +49,15 @@
  */
 
 #undef IEEE802154_CONF_PANID
-#define IEEE802154_CONF_PANID          0x3456
+#define IEEE802154_CONF_PANID          0x2345
 
 /* IP buffer size must match all other hops, in particular the border router. */
 /*
    #undef UIP_CONF_BUFFER_SIZE
    #define UIP_CONF_BUFFER_SIZE           256
  */
+   #undef UIP_CONF_BUFFER_SIZE
+   #define UIP_CONF_BUFFER_SIZE           256
 
 /* Disabling RDC and CSMA for demo purposes. Core updates often
    require more memory. */
@@ -74,6 +76,15 @@
 #undef NETSTACK_CONF_MAC
 //#define NETSTACK_CONF_MAC     nullmac_driver
 #define NETSTACK_CONF_MAC     csma_driver
+
+/* Change this to switch engines. Engine codes in uip-mcast6-engines.h */
+/* When the origin of the multicast is from outside the 6LowPAN use SMRF
+ * see README for more details
+ */ 
+#undef UIP_MCAST6_CONF_ENGINE
+//#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_NONE
+//#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_SMRF 	// needs on rm090: 1516B RAM &  322B ROM 
+#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_ROLL_TM 	// needs on rm090: 4176B RAM & 1802B ROM
 
 /* Increase rpl-border-router IP-buffer when using more than 64. */
 #undef REST_MAX_CHUNK_SIZE
