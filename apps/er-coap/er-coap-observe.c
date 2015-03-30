@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "er-coap-observe.h"
+#include "dev/leds.h"
 
 #define DEBUG 0
 #if DEBUG
@@ -256,6 +257,8 @@ coap_notify_observers_sub(resource_t *resource, const char *subpath)
           coap_serialize_message(notification, transaction->packet);
 
         coap_send_transaction(transaction);
+
+        leds_toggle(LEDS_GREEN);
       }
     }
   }

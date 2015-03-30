@@ -35,6 +35,9 @@
 #define UIP_FALLBACK_INTERFACE rpl_interface
 #endif
 
+#undef IEEE802154_CONF_PANID          
+#define IEEE802154_CONF_PANID          0x3456
+
 #ifndef QUEUEBUF_CONF_NUM
 #define QUEUEBUF_CONF_NUM          4
 #endif
