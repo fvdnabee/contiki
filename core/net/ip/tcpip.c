@@ -47,6 +47,12 @@
 #include "net/ipv6/uip-ds6.h"
 #endif
 
+/* XXX: START PATCH (part 1/2) */
+#if ERBIUM_BORDER_ROUTER
+#include "tcpip-erbr.h"
+#endif
+/* XXX: END PATCH (part 1/2)  */
+
 #include <string.h>
 
 #define DEBUG DEBUG_NONE
@@ -575,8 +581,18 @@ tcpip_ipv6_output(void)
       /* No route was found - we send to the default route instead. */
       if(route == NULL) {
         PRINTF("tcpip_ipv6_output: no route found, using default route\n");
-        nexthop = uip_ds6_defrt_choose();
-        if(nexthop == NULL) {
+         /* XXX: START PATCH (part 2/2) */
+         /* old code */
+//        nexthop = uip_ds6_defrt_choose();
+//        if(nexthop == NULL) {
+         /* new code */
+ #if ERBIUM_BORDER_ROUTER
+         nexthop = (is_last_sender(&UIP_IP_BUF->destipaddr) ? NULL : uip_ds6_defrt_choose() );
+ #else
+         nexthop = uip_ds6_defrt_choose();
+ #endif
+         if(nexthop == NULL) {
+         /* XXX: END PATCH (part 2/2) */
 #ifdef UIP_FALLBACK_INTERFACE
 	  PRINTF("FALLBACK: removing ext hdrs & setting proto %d %d\n", 
 		 uip_ext_len, *((uint8_t *)UIP_IP_BUF + 40));
