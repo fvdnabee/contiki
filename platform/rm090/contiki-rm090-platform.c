@@ -39,4 +39,9 @@ void
 init_platform(void)
 {
   process_start(&sensors_process, NULL);
+  //RF-switch: 0x04 -> PCB antenna, 0x08 -> external antenna
+  //Important: when the following two lines are enabled, cooja becomes too slow.
+  //Disable them for cooja, but enable them for real sensors
+  P4DIR |= 0x0C;
+  P4OUT = (P4OUT & ~0x0C) | 0x04;
 }
