@@ -100,8 +100,8 @@
 #define SHELL_VARS_CONF_RAM_END 0x2000
 
 #define PROFILE_CONF_ON 0
-#ifndef ENERGEST_CONF_ON // allow application developer to overwrite
-//#define ENERGEST_CONF_ON 0
+#ifndef ENERGEST_CONF_ON
+#define ENERGEST_CONF_ON 0
 #endif
 
 #define ELFLOADER_CONF_TEXT_IN_ROM 0
@@ -130,14 +130,11 @@
 #define UIP_CONF_LLH_LEN                0
 
 #define UIP_CONF_ROUTER                 1
-//#ifndef UIP_CONF_IPV6_RPL
-//#define UIP_CONF_IPV6_RPL               1
-//#endif /* UIP_CONF_IPV6_RPL */
 
 /* configure number of neighbors and routes */
-#ifndef UIP_CONF_DS6_NBR_NBU
-#define UIP_CONF_DS6_NBR_NBU     30
-#endif /* UIP_CONF_DS6_NBR_NBU */
+#ifndef NBR_TABLE_CONF_MAX_NEIGHBORS
+#define NBR_TABLE_CONF_MAX_NEIGHBORS     30
+#endif /* NBR_TABLE_CONF_MAX_NEIGHBORS */
 #ifndef UIP_CONF_MAX_ROUTES
 #define UIP_CONF_MAX_ROUTES   30
 #endif /* UIP_CONF_MAX_ROUTES */
