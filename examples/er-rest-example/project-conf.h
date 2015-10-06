@@ -67,7 +67,7 @@
 #define NETSTACK_CONF_RDC   contikimac_driver
 
 #undef NETSTACK_RDC_CHANNEL_CHECK_RATE
-#define NETSTACK_RDC_CHANNEL_CHECK_RATE 4
+#define NETSTACK_RDC_CHANNEL_CHECK_RATE 128
 
 /* Disabling TCP on CoAP nodes. */
 #undef UIP_CONF_TCP
@@ -81,10 +81,10 @@
 /* When the origin of the multicast is from outside the 6LowPAN use SMRF
  * see README for more details
  */ 
-#undef UIP_MCAST6_CONF_ENGINE
+//#undef UIP_MCAST6_CONF_ENGINE
 //#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_NONE
 //#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_SMRF 	// needs on rm090: 1516B RAM &  322B ROM 
-#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_ROLL_TM 	// needs on rm090: 4176B RAM & 1802B ROM
+//#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_ROLL_TM 	// needs on rm090: 4176B RAM & 1802B ROM
 
 /* Increase rpl-border-router IP-buffer when using more than 64. */
 #undef REST_MAX_CHUNK_SIZE
